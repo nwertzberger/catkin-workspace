@@ -1,0 +1,27 @@
+<launch>
+  <!-- Acquire image -->
+  <node
+      name="camera_source"
+      pkg="uvc_camera"
+      type="uvc_camera_node">
+   <remap from="image_raw" to="irobot/image_raw" />
+   <remap from="camera_info" to="irobot/camera_info" />
+  </node>
+
+  <!-- Filter image -->
+  <node name="input_viewer" pkg="image_view" type="image_view">
+    <remap from="image" to="irobot/image_raw" />
+    <param name="autosize" value="True" />
+  </node>
+
+  <!-- Process Image into point cloud -->
+  <node
+      name="draw_frames"
+      pkg="webcam_cv_pipeline"
+      type="webcam_cv_pipeline_node"
+      args="/base_link /base_laser_link /r_gripper_tool_frame"
+      output="screen">
+    <remap from="image" to="irobot/image_raw" />
+  </node>
+
+</launch>
