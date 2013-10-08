@@ -16,6 +16,7 @@
         <param name="autosize" value="True" />
     </node>
 
+<!--
     <node
         name="image_processor"
         pkg="image_proc"
@@ -23,6 +24,7 @@
         <remap from="image_raw" to="irobot/image_raw" />
         <remap from="image_mono" to="irobot/image_mono" />
     </node>
+-->
 
     <node
         name="draw_frames"
@@ -30,7 +32,7 @@
         type="webcam_cv_pipeline_node"
         args="/base_link /base_laser_link /r_gripper_tool_frame"
         output="screen">
-        <remap from="image" to="irobot/image_mono" />
+        <remap from="image" to="irobot/image_raw" />
         <remap from="image_out" to="irobot/image_processed" />
     </node>
 

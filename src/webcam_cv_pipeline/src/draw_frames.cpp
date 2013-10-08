@@ -2,6 +2,7 @@
 #include <ros/console.h>
 #include <image_transport/image_transport.h>
 #include <opencv/cv.h>
+#include <opencv2/photo/photo.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <image_geometry/pinhole_camera_model.h>
 #include <tf/transform_listener.h>
@@ -38,8 +39,10 @@ public:
         cvInitFont(&font, CV_FONT_HERSHEY_SIMPLEX, 0.5, 0.5);
     }
 
-    void imageCb (  const sensor_msgs::ImageConstPtr& image_msg,
-            const sensor_msgs::CameraInfoConstPtr& info_msg) {
+    void imageCb (
+            const sensor_msgs::ImageConstPtr& image_msg,
+            const sensor_msgs::CameraInfoConstPtr& info_msg
+            ) {
         cv_bridge::CvImagePtr bridge;
         try {
             bridge = cv_bridge::toCvCopy(
@@ -55,9 +58,9 @@ public:
         camModel.fromCameraInfo(info_msg);
 
         cv::Mat copy;
-        cv::cvtColor(bridge->image, copy, CV_BGR2GRAY);
+        cv::cvtColor(bridge->image, bridge->image, CV_BGR2GRAY);
+        cv::GaussianBlur(bridge->image, copy, cv::Size(5,5), 0, 0);
         cv::equalizeHist(copy, bridge->image);
-
         cv::cvtColor(bridge->image, bridge->image, CV_GRAY2BGR);
 
         // Publish
