@@ -19,7 +19,7 @@ class FrameDrawer {
     CvFont font;
 
 public:
-    
+
     /**
      * Base initializer for FrameDrawer
      */
@@ -28,27 +28,24 @@ public:
     {
         std::string image_topic = nodeHandle.resolveName("image");
         cameraSubscriber = imageTransport.subscribeCamera(
-            image_topic,
-            1, 
-            &FrameDrawer::imageCb,
-            this
-        );
+                image_topic,
+                1, 
+                &FrameDrawer::imageCb,
+                this
+                );
         ROS_DEBUG("Setting up publisher");
         publisher = imageTransport.advertise("image_out", 1);
         cvInitFont(&font, CV_FONT_HERSHEY_SIMPLEX, 0.5, 0.5);
     }
 
     void imageCb (  const sensor_msgs::ImageConstPtr& image_msg,
-                    const sensor_msgs::CameraInfoConstPtr& info_msg) {
-        ROS_DEBUG("GOT A MESSAGE");
-        cv::Mat image;
-        cv_bridge::CvImagePtr input_bridge;
+            const sensor_msgs::CameraInfoConstPtr& info_msg) {
+        cv_bridge::CvImagePtr bridge;
         try {
-            input_bridge = cv_bridge::toCvCopy(
-                image_msg,
-                sensor_msgs::image_encodings::BGR8
-            );
-            image = input_bridge->image;
+            bridge = cv_bridge::toCvCopy(
+                    image_msg,
+                    sensor_msgs::image_encodings::BGR8
+                    );
         }
         catch (cv_bridge::Exception& ex) {
             ROS_ERROR("[draw_frames] failed to convert image");
@@ -57,50 +54,14 @@ public:
 
         camModel.fromCameraInfo(info_msg);
 
-        BOOST_FOREACH(const std::string& frame_id, frameIds) {
-            tf::StampedTransform transform;
-            try {
-                ros::Time acquisition_time = info_msg->header.stamp;
-                ros::Duration timeout(1.0/3.0);
-                tfListener.waitForTransform(
-                        camModel.tfFrame(),
-                        frame_id,
-                        acquisition_time,
-                        timeout);
-                tfListener.lookupTransform(
-                        camModel.tfFrame(), 
-                        frame_id,
-                        acquisition_time,
-                        transform);
-            } catch (tf::TransformException& ex) {
-                ROS_WARN("[draw_frames TF exception:\n%s", ex.what());
-                return;
-            }
+        cv::Mat copy;
+        cv::cvtColor(bridge->image, copy, CV_BGR2GRAY);
+        cv::equalizeHist(copy, bridge->image);
 
-            tf::Point pt = transform.getOrigin();
-            cv::Point3d pt_cv(pt.x(), pt.y(), pt.z());
-            cv::Point2d uv = camModel.project3dToPixel(pt_cv);
+        cv::cvtColor(bridge->image, bridge->image, CV_GRAY2BGR);
 
-            static const int RADIUS = 3;
-            cv::circle(image, uv, RADIUS, CV_RGB(255, 0, 0), -1);
-            CvSize text_size;
-            int baseline;
-            cvGetTextSize(frame_id.c_str(), &font, &text_size, &baseline);
-            CvPoint origin = cvPoint(
-                uv.x - text_size.width / 2,
-                uv.y - RADIUS - baseline - 3
-            );
-            cv::putText(
-                image,
-                frame_id.c_str(),
-                origin,
-                cv::FONT_HERSHEY_SIMPLEX,
-                12,
-                CV_RGB(255,0,0)
-            );
-        }
-        ROS_DEBUG("Publising image message");
-        publisher.publish(input_bridge->toImageMsg());
+        // Publish
+        publisher.publish(bridge->toImageMsg());
     }
 };
 
