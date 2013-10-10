@@ -1,8 +1,8 @@
-#include <ros/ros.h>
-#include <ros/console.h>
+#include <ros/ros.h> #include <ros/console.h>
 #include <image_transport/image_transport.h>
 #include <opencv/cv.h>
 #include <opencv2/photo/photo.hpp>
+#include <opencv2/features2d/features2d.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <image_geometry/pinhole_camera_model.h>
 #include <tf/transform_listener.h>
@@ -19,6 +19,8 @@ class FrameDrawer {
     std::vector<std::string> frameIds;
     CvFont font;
 
+    cv::Ptr<cv::FeatureDetector> detector;
+
 public:
 
     /**
@@ -27,6 +29,7 @@ public:
     FrameDrawer(const std::vector<std::string> & frame_ids)
         : imageTransport(nodeHandle), frameIds(frame_ids)
     {
+        detector = new cv::GoodFeaturesToTrackDetector(500, 0.07, 9., 3, false, 0.04);
         std::string image_topic = nodeHandle.resolveName("image");
         cameraSubscriber = imageTransport.subscribeCamera(
                 image_topic,
@@ -57,11 +60,21 @@ public:
 
         camModel.fromCameraInfo(info_msg);
 
-        cv::Mat copy;
+        cv::Mat copy, blurred;
         cv::cvtColor(bridge->image, bridge->image, CV_BGR2GRAY);
-        cv::GaussianBlur(bridge->image, copy, cv::Size(5,5), 0, 0);
-        cv::equalizeHist(copy, bridge->image);
-        cv::cvtColor(bridge->image, bridge->image, CV_GRAY2BGR);
+        cv::blur(bridge->image, blurred, cv::Size(7,7));
+        cv::Canny(blurred, copy, 100, 200, 5);
+        std::vector<cv::KeyPoint> keypoints;
+        detector->detect( blurred, keypoints );
+
+        //-- Draw keypoints
+        cv::drawKeypoints(
+                copy,
+                //cv::Mat::zeros(bridge->image.rows, bridge->image.cols, CV_AA),
+                keypoints,
+                bridge->image,
+                cv::Scalar::all(-1),
+                cv::DrawMatchesFlags::DEFAULT );
 
         // Publish
         publisher.publish(bridge->toImageMsg());
