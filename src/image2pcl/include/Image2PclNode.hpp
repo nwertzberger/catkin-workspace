@@ -3,7 +3,8 @@
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
 #include <image_geometry/pinhole_camera_model.h>
-#include <opencv/cv.h>
+
+#include <ImageConverter.hpp>
 
 namespace image2pcl {
 
@@ -14,9 +15,7 @@ namespace image2pcl {
         image_transport::CameraSubscriber  cameraSubscriber;
         image_transport::Publisher         publisher;
         image_geometry::PinholeCameraModel camModel;
-
-        cv::Ptr<CvFont> font;
-        cv::Ptr<cv::FeatureDetector> detector;
+        ImageConverter                     converter;
 
     public:
         /**
