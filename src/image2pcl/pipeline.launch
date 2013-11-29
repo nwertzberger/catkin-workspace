@@ -1,36 +1,21 @@
 <launch>
     <!-- Acquire image -->
-    <node
-        name="camera_source"
-        pkg="uvc_camera"
-        type="uvc_camera_node">
-        <remap from="image_raw" to="irobot/image_raw" />
-        <remap from="camera_info" to="irobot/camera_info" />
-    </node>
 
     <!-- Filter image -->
     <node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager"/>
+
+    <node pkg="nodelet" type="nodelet" name="Camera"
+        args="load uvc_camera/CameraNodelet standalone_nodelet">
+        <remap from="image_raw" to="irobot/image_raw" />
+        <remap from="camera_info" to="irobot/camera_info" />
+    </node>
 
     <node name="input_viewer" pkg="image_view" type="image_view">
         <remap from="image" to="irobot/image_raw" />
         <param name="autosize" value="True" />
     </node>
 
-<!--
-    <node
-        name="image_processor"
-        pkg="image_proc"
-        type="image_proc">
-        <remap from="image_raw" to="irobot/image_raw" />
-        <remap from="image_mono" to="irobot/image_mono" />
-    </node>
--->
-
-    <node
-        name="draw_frames"
-        pkg="webcam_cv_pipeline"
-        type="webcam_cv_pipeline_node"
-        args="/base_link /base_laser_link /r_gripper_tool_frame"
+    <node name="draw_frames" pkg="image2pcl" type="image2pcl_node"
         output="screen">
         <remap from="image" to="irobot/image_raw" />
         <remap from="image_out" to="irobot/image_processed" />
@@ -40,5 +25,4 @@
         <remap from="image" to="irobot/image_processed" />
         <param name="autosize" value="True" />
     </node>
-
 </launch>

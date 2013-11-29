@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>webcam_cv_pipeline</name>
+  <name>image2pcl</name>
   <version>0.0.0</version>
-  <description>The webcam_cv_pipeline package</description>
+  <description>The image2pcl package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
