@@ -2,6 +2,8 @@
 #define ImageConverter_hpp
 
 #include <opencv/cv.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <vector>
 
 namespace image2pcl {
 
@@ -17,6 +19,7 @@ namespace image2pcl {
      */
     class CloudPointBase {
         private:
+            sensor_msgs::PointCloud2 cloud;
             const std::vector<PixelCorrespondence> &
                 correspondPixels(
                         const cv::Mat & image1,
@@ -26,7 +29,7 @@ namespace image2pcl {
                         const double & orientation
                         ); 
         public:
-            CloudBuilder();
+            CloudPointBase();
             void updateCloud(
                     const cv::Mat & image,
                     const tf::Vector3 & position,
@@ -34,7 +37,7 @@ namespace image2pcl {
                     const ros::Time & time
                     );
 
-            const sensor_msgs::PointCloud2ConstPth & getCloud();
+            sensor_msgs::PointCloud2ConstPtr getCloud();
     };
 }
 

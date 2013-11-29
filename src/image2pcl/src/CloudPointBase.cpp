@@ -1,5 +1,6 @@
-#include <ros/tf.h>
-#include <ros.h>
+#include <ros/ros.h>
+#include <tf/transform_datatypes.h>
+
 #include <boost/foreach.hpp>
 #include <sensor_msgs/PointCloud2.h>
 
@@ -17,14 +18,14 @@ CloudPointBase::CloudPointBase() {
  *  correspond it to a pixel within a specified radius, and repeat.
  *  image : a processed image ready for correspondence.
  */
-vector<PixelCorrespondence> CloudPointBase::correspondPixels(
+const vector<PixelCorrespondence> * CloudPointBase::correspondPixels(
         const cv::Mat & image1,
         const cv::Mat & image2,
         const int & xRadius,
         const int & yRadius,
-        const int & orientation
+        const double & orientation
         ) {
-    return NULL;
+    return new vector<PixelCorrespondence>();
 }
 
 
@@ -40,7 +41,8 @@ void CloudPointBase::updateCloud(
 /**
  * get current "visible" cloud.
  */
-const sensor_msgs::PointCloud2ConstPtr & CloudPointBase::getCloud() {
-    return NULL;
+sensor_msgs::PointCloud2ConstPtr CloudPointBase::getCloud() {
+    sensor_msgs::PointCloud2ConstPtr cloudPtr(cloud);
+    return cloudPtr;
 }
 
