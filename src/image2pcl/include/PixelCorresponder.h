@@ -37,6 +37,11 @@ namespace image2pcl {
 
 class PixelCorrespondence {
  public:
+  PixelCorrespondence(cv::Point p1, cv::Point p2) : pixel1(p1), pixel2(p2) { }
+  inline bool operator == (const PixelCorrespondence & p) const {
+    return pixel1 == p.pixel1 && pixel2 == p.pixel2;
+  }
+ private:
   cv::Point pixel1;
   cv::Point pixel2;
 };

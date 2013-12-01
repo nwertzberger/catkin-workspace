@@ -57,6 +57,12 @@ TEST(PixelCorresponder, canCorrespondASinglePixel) {
           2,
           2,
           0.0);
+
+  ASSERT_EQ(1, correspondences.size());
+  ASSERT_EQ(PixelCorrespondence(
+          cv::Point(1,2),
+          cv::Point(1,1)
+     ), correspondences[0]);
       
 }
 

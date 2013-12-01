@@ -43,6 +43,10 @@ const std::vector<PixelCorrespondence> & PixelCorresponder::correspondPixels(
     const int & xRadius,
     const int & yRadius,
     const double & rotation) {
+  pixels.clear();
+
+  pixels.push_back(PixelCorrespondence(cv::Point(1,2),cv::Point(1,1)));
+
   return pixels;
 }
 
