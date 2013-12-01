@@ -21,16 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <ImageConverter.h>
 #include <gtest/gtest.h>
-
-namespace image2pcl {
-
-TEST(Image2PclTest, instantiatesCleanly) {
-    ImageConverter imageConverter;
-}
-
-}
 
 int main(int argc, char ** argv) {
     testing::InitGoogleTest(&argc, argv);

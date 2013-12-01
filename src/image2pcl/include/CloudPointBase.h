@@ -25,19 +25,16 @@
 #define SRC_IMAGE2PCL_INCLUDE_CLOUDPOINTBASE_H_
 
 #include <opencv/cv.h>
+#include <tf/transform_datatypes.h>
+#include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 
 #include <Macros.h>
+#include <PixelCorresponder.h>
 
 #include <vector>
 
 namespace image2pcl {
-
-class PixelCorrespondence {
- public:
-  cv::Point pixel1;
-  cv::Point pixel2;
-};
 
 /**
  * This is the tool to manage the visible point cloud.
@@ -46,26 +43,20 @@ class PixelCorrespondence {
  */
 class CloudPointBase {
  public:
-  CloudPointBase();
+  CloudPointBase(PixelCorresponder & corr);
+
   void updateCloud(
       const cv::Mat & image,
       const tf::Vector3 & position,
       const tf::Quaternion & orientation,
       const ros::Time & time);
 
-  sensor_msgs::PointCloud2ConstPtr getCloud();
+  const sensor_msgs::PointCloud2ConstPtr & getCloud();
 
  private:
-  const std::vector<PixelCorrespondence> &
-      correspondPixels(
-          const cv::Mat & image1,
-          const cv::Mat & image2,
-          const int & xRadius,
-          const int & yRadius,
-          const double & orientation);
-
-  sensor_msgs::PointCloud2 cloud;
-  std::vector<PixelCorrespondence> pixels;
+  sensor_msgs::PointCloud2Ptr cloud;
+  sensor_msgs::PointCloud2ConstPtr cloudPtr;
+  PixelCorresponder & corresponder;
 
   DISALLOW_COPY_AND_ASSIGN(CloudPointBase);
 };

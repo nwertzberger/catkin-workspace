@@ -21,35 +21,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <gtest/gtest.h>
 
 #include <opencv/cv.h>
 #include <tf/transform_datatypes.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 
+#include <PixelCorresponder.h>
 #include <CloudPointBase.h>
 
 namespace image2pcl {
 
-CloudPointBase::CloudPointBase(PixelCorresponder & corr)
-  : cloud(new sensor_msgs::PointCloud2()),
-    cloudPtr(cloud),
-    corresponder(corr) {
+TEST(CloudPointBaseTest, instantiatesCleanly) {
+  PixelCorresponder corresponder;
+  CloudPointBase pointBase(corresponder);
 }
 
+TEST(CloudPointBaseTest, canCreateASinglePointCloud) {
+  PixelCorresponder corresponder;
+  CloudPointBase pointBase(corresponder);
 
-void CloudPointBase::updateCloud(
-    const cv::Mat & image,
-    const tf::Vector3 & position,
-    const tf::Quaternion & orientation,
-    const ros::Time & time) {
-}
+  uint8_t leftEyeData[3][4] = {
+    {0, 0, 0, 0},
+    {0, 0, 100, 0},
+    {0, 0, 0, 0}
+  };
+  uint8_t rightEyeData[3][4] = {
+    {0, 0, 0, 0},
+    {0, 100, 0, 0},
+    {0, 0, 0, 0}
+  };
 
-/**
- * get current "visible" cloud.
- */
-const sensor_msgs::PointCloud2ConstPtr & CloudPointBase::getCloud() {
-  return cloudPtr;
+  cv::Mat leftEye(3, 4, CV_8U, leftEyeData);
+  cv::Mat rightEye(3, 4, CV_8U, rightEyeData);
+
+  tf::Vector3 leftPos(0, 0, 0);
+  tf::Vector3 rightPos(1, 0, 0);
+
+  tf::Quaternion orientation(0.0, 0.0, 0.0, 0.0);
+  
+  pointBase.updateCloud(
+      leftEye,
+      leftPos,
+      orientation,
+      ros::Time(0.0));
+
+  pointBase.updateCloud(
+      rightEye,
+      rightPos,
+      orientation,
+      ros::Time(0.01));
+
+  const sensor_msgs::PointCloud2ConstPtr & cloud = pointBase.getCloud();
+      
 }
 
 }   // namespace image2pcl
+

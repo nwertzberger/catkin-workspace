@@ -21,35 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
+#include <gtest/gtest.h>
 #include <opencv/cv.h>
-#include <tf/transform_datatypes.h>
-#include <ros/ros.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <PixelCorresponder.h>
 
-#include <CloudPointBase.h>
+#include <vector>
 
 namespace image2pcl {
 
-CloudPointBase::CloudPointBase(PixelCorresponder & corr)
-  : cloud(new sensor_msgs::PointCloud2()),
-    cloudPtr(cloud),
-    corresponder(corr) {
+TEST(PixelCorresponder, instantiatesCleanly) {
+  PixelCorresponder corresponder;
 }
 
+TEST(PixelCorresponder, canCorrespondASinglePixel) {
+  PixelCorresponder corresponder;
 
-void CloudPointBase::updateCloud(
-    const cv::Mat & image,
-    const tf::Vector3 & position,
-    const tf::Quaternion & orientation,
-    const ros::Time & time) {
-}
+  uint8_t leftEyeData[3][4] = {
+    {0, 0, 0, 0},
+    {0, 0, 100, 0},
+    {0, 0, 0, 0}
+  };
+  uint8_t rightEyeData[3][4] = {
+    {0, 0, 0, 0},
+    {0, 100, 0, 0},
+    {0, 0, 0, 0}
+  };
 
-/**
- * get current "visible" cloud.
- */
-const sensor_msgs::PointCloud2ConstPtr & CloudPointBase::getCloud() {
-  return cloudPtr;
+  cv::Mat leftEye(3,4, CV_8U, leftEyeData);
+  cv::Mat rightEye(3,4, CV_8U, rightEyeData);
+ 
+  const std::vector<PixelCorrespondence> & correspondences = corresponder
+      .correspondPixels(
+          leftEye,
+          rightEye,
+          2,
+          2,
+          0.0);
+      
 }
 
 }   // namespace image2pcl
+

@@ -21,35 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <gtest/gtest.h>
 
-#include <opencv/cv.h>
-#include <tf/transform_datatypes.h>
-#include <ros/ros.h>
-#include <sensor_msgs/PointCloud2.h>
-
-#include <CloudPointBase.h>
+#include <ImageConverter.h>
 
 namespace image2pcl {
 
-CloudPointBase::CloudPointBase(PixelCorresponder & corr)
-  : cloud(new sensor_msgs::PointCloud2()),
-    cloudPtr(cloud),
-    corresponder(corr) {
+TEST(ImageConverterTest, instantiatesCleanly) {
+    ImageConverter imageConverter;
 }
 
-
-void CloudPointBase::updateCloud(
-    const cv::Mat & image,
-    const tf::Vector3 & position,
-    const tf::Quaternion & orientation,
-    const ros::Time & time) {
 }
 
-/**
- * get current "visible" cloud.
- */
-const sensor_msgs::PointCloud2ConstPtr & CloudPointBase::getCloud() {
-  return cloudPtr;
-}
-
-}   // namespace image2pcl

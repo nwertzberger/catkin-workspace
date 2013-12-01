@@ -21,35 +21,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef SRC_IMAGE2PCL_INCLUDE_PIXELCORRESPONDER_H_
+#define SRC_IMAGE2PCL_INCLUDE_PIXELCORRESPONDER_H_
 
 #include <opencv/cv.h>
 #include <tf/transform_datatypes.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 
-#include <CloudPointBase.h>
+#include <Macros.h>
+
+#include <vector>
 
 namespace image2pcl {
 
-CloudPointBase::CloudPointBase(PixelCorresponder & corr)
-  : cloud(new sensor_msgs::PointCloud2()),
-    cloudPtr(cloud),
-    corresponder(corr) {
-}
-
-
-void CloudPointBase::updateCloud(
-    const cv::Mat & image,
-    const tf::Vector3 & position,
-    const tf::Quaternion & orientation,
-    const ros::Time & time) {
-}
+class PixelCorrespondence {
+ public:
+  cv::Point pixel1;
+  cv::Point pixel2;
+};
 
 /**
- * get current "visible" cloud.
+ * This is the tool to manage the visible point cloud.
+ * A point remains visible so long as the last update determined it
+ * to be visible in the image.
  */
-const sensor_msgs::PointCloud2ConstPtr & CloudPointBase::getCloud() {
-  return cloudPtr;
-}
+class PixelCorresponder {
+ public:
+  PixelCorresponder();
+  const std::vector<PixelCorrespondence> &
+      correspondPixels(
+          const cv::Mat & image1,
+          const cv::Mat & image2,
+          const int & xRadius,
+          const int & yRadius,
+          const double & rotation);
+
+ private:
+  std::vector<PixelCorrespondence> pixels;
+
+  DISALLOW_COPY_AND_ASSIGN(PixelCorresponder);
+};
 
 }   // namespace image2pcl
+
+#endif  // SRC_IMAGE2PCL_INCLUDE_PIXELCORRESPONDER_H_

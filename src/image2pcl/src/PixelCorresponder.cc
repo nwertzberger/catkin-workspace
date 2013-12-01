@@ -23,33 +23,27 @@
  */
 
 #include <opencv/cv.h>
-#include <tf/transform_datatypes.h>
-#include <ros/ros.h>
-#include <sensor_msgs/PointCloud2.h>
 
-#include <CloudPointBase.h>
+#include <PixelCorresponder.h>
 
 namespace image2pcl {
 
-CloudPointBase::CloudPointBase(PixelCorresponder & corr)
-  : cloud(new sensor_msgs::PointCloud2()),
-    cloudPtr(cloud),
-    corresponder(corr) {
-}
-
-
-void CloudPointBase::updateCloud(
-    const cv::Mat & image,
-    const tf::Vector3 & position,
-    const tf::Quaternion & orientation,
-    const ros::Time & time) {
+PixelCorresponder::PixelCorresponder() {
 }
 
 /**
- * get current "visible" cloud.
+ *  Add the current information to the cloud database. The correspondence
+ *  algorithm for this is to find every single pixel with a non-zero value, 
+ *  correspond it to a pixel within a specified radius, and repeat.
+ *  image : a processed image ready for correspondence.
  */
-const sensor_msgs::PointCloud2ConstPtr & CloudPointBase::getCloud() {
-  return cloudPtr;
+const std::vector<PixelCorrespondence> & PixelCorresponder::correspondPixels(
+    const cv::Mat & image1,
+    const cv::Mat & image2,
+    const int & xRadius,
+    const int & yRadius,
+    const double & rotation) {
+  return pixels;
 }
 
-}   // namespace image2pcl
+}  // namespace image2pcl
