@@ -65,13 +65,9 @@ TEST(PixelCorresponder, canCorrespondASinglePixel) {
           2,
           2);
 
-  BOOST_FOREACH(PixelCorrespondence c, correspondences) {
-    std::cout << c << std::endl;
-  }
-
   ASSERT_EQ(1, correspondences.size());
   ASSERT_EQ(PixelCorrespondence(
-          cv::Point(1,2),
+          cv::Point(2,1),
           cv::Point(1,1)
      ), correspondences[0]);
 
