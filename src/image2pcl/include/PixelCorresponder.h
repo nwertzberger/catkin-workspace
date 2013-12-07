@@ -41,9 +41,10 @@ class PixelCorrespondence {
   inline bool operator == (const PixelCorrespondence & p) const {
     return pixel1 == p.pixel1 && pixel2 == p.pixel2;
   }
- private:
+
   cv::Point pixel1;
   cv::Point pixel2;
+  
 };
 
 /**
@@ -51,19 +52,27 @@ class PixelCorrespondence {
  * A point remains visible so long as the last update determined it
  * to be visible in the image.
  */
+template <class T>
 class PixelCorresponder {
  public:
-  PixelCorresponder();
+  PixelCorresponder(T skipVal);
   const std::vector<PixelCorrespondence> &
       correspondPixels(
           const cv::Mat & image1,
           const cv::Mat & image2,
           const int & xRadius,
-          const int & yRadius,
-          const double & rotation);
+          const int & yRadius);
 
  private:
   std::vector<PixelCorrespondence> pixels;
+  T skipValue;
+
+  cv::Point findCorrespondingPixel(
+      const T & value,
+      const cv::Point & pos,
+      const cv::Mat & image,
+      const int & xRadius,
+      const int & yRadius);
 
   DISALLOW_COPY_AND_ASSIGN(PixelCorresponder);
 };

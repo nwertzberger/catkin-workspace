@@ -34,13 +34,13 @@
 namespace image2pcl {
 
 TEST(CloudPointBaseTest, instantiatesCleanly) {
-  PixelCorresponder corresponder;
-  CloudPointBase pointBase(corresponder);
+  PixelCorresponder<uint8_t> corresponder(0);
+  CloudPointBase<uint8_t> pointBase(corresponder);
 }
 
 TEST(CloudPointBaseTest, canCreateASinglePointCloud) {
-  PixelCorresponder corresponder;
-  CloudPointBase pointBase(corresponder);
+  PixelCorresponder<uint8_t> corresponder(0);
+  CloudPointBase<uint8_t> pointBase(corresponder);
 
   uint8_t leftEyeData[3][4] = {
     {0, 0, 0, 0},

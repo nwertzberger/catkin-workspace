@@ -38,9 +38,6 @@ class ImageConverter {
   ImageConverter();
   const cv::Mat & convertImage(cv::Mat & srcImage);
  private:
-  cv::Ptr<CvFont> font;
-  cv::Ptr<cv::FeatureDetector> detector;
-
   DISALLOW_COPY_AND_ASSIGN(ImageConverter);
 };
 

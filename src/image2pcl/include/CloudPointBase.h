@@ -41,9 +41,10 @@ namespace image2pcl {
  * A point remains visible so long as the last update determined it
  * to be visible in the image.
  */
+template <class T>
 class CloudPointBase {
  public:
-  CloudPointBase(PixelCorresponder & corr);
+  CloudPointBase(PixelCorresponder<T> & corr);
 
   void updateCloud(
       const cv::Mat & image,
@@ -56,7 +57,7 @@ class CloudPointBase {
  private:
   sensor_msgs::PointCloud2Ptr cloud;
   sensor_msgs::PointCloud2ConstPtr cloudPtr;
-  PixelCorresponder & corresponder;
+  PixelCorresponder<T> & corresponder;
 
   DISALLOW_COPY_AND_ASSIGN(CloudPointBase);
 };

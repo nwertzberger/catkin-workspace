@@ -25,16 +25,24 @@
 #include <opencv/cv.h>
 #include <PixelCorresponder.h>
 
+#include <boost/foreach.hpp>
+
 #include <vector>
+#include <iostream>
+
+std::ostream & operator << (std::ostream & stream, const image2pcl::PixelCorrespondence & corr) {
+  stream << "{p1:{" << corr.pixel1 << "}, p2:{" << corr.pixel2 <<"}}";
+  return stream;
+}
 
 namespace image2pcl {
 
 TEST(PixelCorresponder, instantiatesCleanly) {
-  PixelCorresponder corresponder;
+  PixelCorresponder<uint8_t> corresponder(0);
 }
 
 TEST(PixelCorresponder, canCorrespondASinglePixel) {
-  PixelCorresponder corresponder;
+  PixelCorresponder<uint8_t> corresponder(0);
 
   uint8_t leftEyeData[3][4] = {
     {0, 0, 0, 0},
@@ -55,14 +63,18 @@ TEST(PixelCorresponder, canCorrespondASinglePixel) {
           leftEye,
           rightEye,
           2,
-          2,
-          0.0);
+          2);
+
+  BOOST_FOREACH(PixelCorrespondence c, correspondences) {
+    std::cout << c << std::endl;
+  }
 
   ASSERT_EQ(1, correspondences.size());
   ASSERT_EQ(PixelCorrespondence(
           cv::Point(1,2),
           cv::Point(1,1)
      ), correspondences[0]);
+
       
 }
 

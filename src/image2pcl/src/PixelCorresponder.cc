@@ -23,31 +23,95 @@
  */
 
 #include <opencv/cv.h>
+#include <math.h>
+
+#include <boost/foreach.hpp>
 
 #include <PixelCorresponder.h>
+#include <iostream>
 
 namespace image2pcl {
 
-PixelCorresponder::PixelCorresponder() {
+template <class T>
+PixelCorresponder<T>::PixelCorresponder(T skipVal)
+  : skipValue(skipVal) {
 }
+
+template <class T>
+cv::Point PixelCorresponder<T>::findCorrespondingPixel(
+    const T & value,
+    const cv::Point & pos,
+    const cv::Mat & image,
+    const int & xRadius,
+    const int & yRadius) {
+
+  for (int x = pos.x - xRadius; x < pos.x + xRadius; x++) {
+    for (int y = pos.y - yRadius; y < pos.y + yRadius; y++) {
+      if (x >= 0 && y >= 0 
+          && x < image.cols && y < image.rows 
+          && image.at<T>(y,x) == value) {
+        return cv::Point(x,y);
+      }  
+    }
+  }
+
+}
+
 
 /**
  *  Add the current information to the cloud database. The correspondence
  *  algorithm for this is to find every single pixel with a non-zero value, 
  *  correspond it to a pixel within a specified radius, and repeat.
  *  image : a processed image ready for correspondence.
+ *
+ *  Correspondence works as follows:
+ *    Given xRadius, yRadius, rotation:
+ *      Calculate correspondence cost to all points in space.
+ *        cost = distance + adjacent pixel distance.  # may need to be tweaked.
+ *      Select lowest cost correspondence.
+ *          
  */
-const std::vector<PixelCorrespondence> & PixelCorresponder::correspondPixels(
+template <class T>
+const std::vector<PixelCorrespondence> & PixelCorresponder<T>::correspondPixels(
     const cv::Mat & image1,
     const cv::Mat & image2,
     const int & xRadius,
-    const int & yRadius,
-    const double & rotation) {
+    const int & yRadius) {
+
   pixels.clear();
 
-  pixels.push_back(PixelCorrespondence(cv::Point(1,2),cv::Point(1,1)));
+  for (int i = 0; i < image1.rows; i++) {
+    for (int j = 0; j < image1.cols; j++) {
+
+      const cv::Point pixel1Pos(i, j);
+      const T & value = image1.at<T>(pixel1Pos);
+
+      // Skip values
+      if (value == skipValue) {
+        continue;
+      }
+
+      // find correspondences
+      cv::Point pixel2Pos = findCorrespondingPixel(
+          value,
+          pixel1Pos,
+          image2,
+          xRadius,
+          yRadius);
+        
+      pixels.push_back(PixelCorrespondence(
+          pixel1Pos,
+          pixel2Pos
+      ));
+    }
+  }
 
   return pixels;
 }
 
+template class PixelCorresponder<cv::Vec3b>;
+template class PixelCorresponder<uint8_t>;
+
 }  // namespace image2pcl
+
+

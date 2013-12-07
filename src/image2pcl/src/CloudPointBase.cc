@@ -31,14 +31,16 @@
 
 namespace image2pcl {
 
-CloudPointBase::CloudPointBase(PixelCorresponder & corr)
+template<class T>
+CloudPointBase<T>::CloudPointBase(PixelCorresponder<T> & corr)
   : cloud(new sensor_msgs::PointCloud2()),
     cloudPtr(cloud),
     corresponder(corr) {
 }
 
 
-void CloudPointBase::updateCloud(
+template<class T>
+void CloudPointBase<T>::updateCloud(
     const cv::Mat & image,
     const tf::Vector3 & position,
     const tf::Quaternion & orientation,
@@ -48,8 +50,12 @@ void CloudPointBase::updateCloud(
 /**
  * get current "visible" cloud.
  */
-const sensor_msgs::PointCloud2ConstPtr & CloudPointBase::getCloud() {
+template<class T>
+const sensor_msgs::PointCloud2ConstPtr & CloudPointBase<T>::getCloud() {
   return cloudPtr;
 }
+
+template class CloudPointBase<cv::Vec3b>;
+template class CloudPointBase<uint8_t>;
 
 }   // namespace image2pcl
