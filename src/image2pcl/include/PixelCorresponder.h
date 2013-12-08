@@ -79,4 +79,8 @@ class PixelCorresponder {
 
 }   // namespace image2pcl
 
+std::ostream & operator << (
+    std::ostream & stream,
+    const image2pcl::PixelCorrespondence & corr); 
+
 #endif  // SRC_IMAGE2PCL_INCLUDE_PIXELCORRESPONDER_H_

@@ -30,48 +30,41 @@
 #include <vector>
 #include <iostream>
 
-std::ostream & operator << (std::ostream & stream, const image2pcl::PixelCorrespondence & corr) {
-  stream << "{p1:{" << corr.pixel1 << "}, p2:{" << corr.pixel2 <<"}}";
-  return stream;
-}
+using cv::Mat;
+using cv::Mat_;
+
+#define MAT(r, c, args...) (Mat_<uint8_t>(r, c) << args)
 
 namespace image2pcl {
 
+static std::vector<PixelCorrespondence> callCorrespondences(
+    const Mat & leftEye,
+    const Mat & rightEye) {
+  return PixelCorresponder<uint8_t>(0).correspondPixels(leftEye, rightEye, 2, 2);
+}
+
+
 TEST(PixelCorresponder, instantiatesCleanly) {
-  PixelCorresponder<uint8_t> corresponder(0);
+  PixelCorresponder<cv::Vec3b> corresponder(0);
 }
 
 TEST(PixelCorresponder, canCorrespondASinglePixel) {
-  PixelCorresponder<uint8_t> corresponder(0);
-
-  uint8_t leftEyeData[3][4] = {
-    {0, 0, 0, 0},
-    {0, 0, 100, 0},
-    {0, 0, 0, 0}
-  };
-  uint8_t rightEyeData[3][4] = {
-    {0, 0, 0, 0},
-    {0, 100, 0, 0},
-    {0, 0, 0, 0}
-  };
-
-  cv::Mat leftEye(3,4, CV_8U, leftEyeData);
-  cv::Mat rightEye(3,4, CV_8U, rightEyeData);
- 
-  const std::vector<PixelCorrespondence> & correspondences = corresponder
-      .correspondPixels(
-          leftEye,
-          rightEye,
-          2,
-          2);
-
+  std::vector<PixelCorrespondence> correspondences = callCorrespondences(
+          MAT(3,4,
+            0, 0, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 0
+          ),
+          MAT(3,4,
+            0, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 0, 0
+          ));
   ASSERT_EQ(1, correspondences.size());
   ASSERT_EQ(PixelCorrespondence(
           cv::Point(2,1),
           cv::Point(1,1)
      ), correspondences[0]);
-
-      
 }
 
 }   // namespace image2pcl

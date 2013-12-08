@@ -57,5 +57,6 @@ const sensor_msgs::PointCloud2ConstPtr & CloudPointBase<T>::getCloud() {
 
 template class CloudPointBase<cv::Vec3b>;
 template class CloudPointBase<uint8_t>;
+template class CloudPointBase<double>;
 
 }   // namespace image2pcl
