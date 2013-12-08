@@ -33,16 +33,15 @@
 using cv::Mat;
 using cv::Mat_;
 
-#define MAT(r, c, args...) (Mat_<uint8_t>(r, c) << args)
+#define MAT(r, c, args...) (Mat_<int>(r, c) << args)
 
 namespace image2pcl {
 
 static std::vector<PixelCorrespondence> callCorrespondences(
     const Mat & leftEye,
     const Mat & rightEye) {
-  return PixelCorresponder<uint8_t>(0).correspondPixels(leftEye, rightEye, 2, 2);
+  return PixelCorresponder<int>(0).correspondPixels(leftEye, rightEye, 2, 2);
 }
-
 
 TEST(PixelCorresponder, instantiatesCleanly) {
   PixelCorresponder<cv::Vec3b> corresponder(0);
@@ -60,11 +59,36 @@ TEST(PixelCorresponder, canCorrespondASinglePixel) {
             0, 1, 0, 0,
             0, 0, 0, 0
           ));
+
   ASSERT_EQ(1, correspondences.size());
   ASSERT_EQ(PixelCorrespondence(
           cv::Point(2,1),
           cv::Point(1,1)
      ), correspondences[0]);
+}
+
+TEST(PixelCorresponder, canCorrespondTwoPixels) {
+  std::vector<PixelCorrespondence> correspondences = callCorrespondences(
+          MAT(3,4,
+            0, 0, 1, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 0
+          ),
+          MAT(3,4,
+            0, 1, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 0, 0
+          ));
+
+  ASSERT_EQ(2, correspondences.size());
+  ASSERT_EQ(PixelCorrespondence(
+          cv::Point(2,0),
+          cv::Point(1,0)
+     ), correspondences[0]);
+  ASSERT_EQ(PixelCorrespondence(
+          cv::Point(2,1),
+          cv::Point(1,1)
+     ), correspondences[1]);
 }
 
 }   // namespace image2pcl

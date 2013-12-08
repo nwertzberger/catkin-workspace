@@ -52,15 +52,26 @@ cv::Point PixelCorresponder<T>::findCorrespondingPixel(
     const int & xRadius,
     const int & yRadius) {
 
+  int closestDistance = xRadius * yRadius * xRadius;
+  closestDistance *= closestDistance;
+
+  cv::Point rval(-1,-1);
+
   for (int x = pos.x - xRadius; x < pos.x + xRadius; x++) {
     for (int y = pos.y - yRadius; y < pos.y + yRadius; y++) {
-      if (x >= 0 && y >= 0 && x < image.cols && y < image.rows 
+      if (x >= 0 && y >= 0
+          && x < image.cols && y < image.rows 
           && image.at<T>(y,x) == value) {
-        return cv::Point(x,y);
+        int dx = (pos.x - x);
+        int dy = (pos.y - y);
+        if (dx*dx + dy*dy < closestDistance) {
+          closestDistance = dx*dx + dy*dy;
+          rval = cv::Point(x, y);
+        }
       }  
     }
   }
-  return cv::Point(-1,-1);
+  return rval;
 }
 
 
@@ -86,9 +97,8 @@ const std::vector<PixelCorrespondence> & PixelCorresponder<T>::correspondPixels(
 
   pixels.clear();
 
-  for (int x = 0; x < image1.rows; x++) {
-    for (int y = 0; y < image1.cols; y++) {
-
+  for (int y = 0; y < image1.rows; y++) {
+    for (int x = 0; x < image1.cols; x++) {
       const cv::Point pixel1Pos(x, y);
       const T & value = image1.at<T>(pixel1Pos);
 
@@ -96,7 +106,6 @@ const std::vector<PixelCorrespondence> & PixelCorresponder<T>::correspondPixels(
       if (value == skipValue) {
         continue;
       }
-
 
       // find correspondences
       cv::Point pixel2Pos = findCorrespondingPixel(
@@ -106,11 +115,6 @@ const std::vector<PixelCorrespondence> & PixelCorresponder<T>::correspondPixels(
           xRadius,
           yRadius);
         
-      BOOST_FOREACH(PixelCorrespondence c, pixels) {
-        std::cout << c << ", ";
-      }
-      std::cout << "!" << std::endl;
-
       if (pixel2Pos.x != -1) {
         pixels.push_back(PixelCorrespondence(
             pixel1Pos,
@@ -124,6 +128,7 @@ const std::vector<PixelCorrespondence> & PixelCorresponder<T>::correspondPixels(
 
 template class PixelCorresponder<cv::Vec3b>;
 template class PixelCorresponder<uint8_t>;
+template class PixelCorresponder<int>;
 template class PixelCorresponder<double>;
 
 }  // namespace image2pcl
