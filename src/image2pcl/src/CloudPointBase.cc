@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 #include <tf/transform_datatypes.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -32,10 +32,13 @@
 namespace image2pcl {
 
 template<class T>
-CloudPointBase<T>::CloudPointBase(PixelCorresponder<T> & corr)
-  : cloud(new sensor_msgs::PointCloud2()),
-    cloudPtr(cloud),
-    corresponder(corr) {
+CloudPointBase<T>::CloudPointBase(
+    PixelCorresponder<T> & corr,
+    PixelTriangulator & trig)
+  : corresponder(corr),
+    triangulator(trig)
+  {
+    cloudPtr;
 }
 
 
@@ -45,6 +48,25 @@ void CloudPointBase<T>::updateCloud(
     const tf::Vector3 & position,
     const tf::Quaternion & orientation,
     const ros::Time & time) {
+  // If there was nothing in the last image, there is nothing to do.
+  if (cv::countNonZero(lastImage) > 0) {
+    const std::vector<PixelCorrespondence> & corr = corresponder.correspondPixels(
+        lastImage,
+        image,
+        3, 3);
+
+    cloudPtr = triangulator.triangulate(
+        corr,
+        lastPosition,
+        position,
+        lastOrientation,
+        orientation);
+  }
+
+  lastImage = image;
+  lastPosition = position;
+  lastOrientation = orientation;
+  lastTime = time;
 }
 
 /**

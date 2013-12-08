@@ -31,6 +31,7 @@
 #include <sensor_msgs/image_encodings.h>
 
 #include <Image2PclNode.h>
+#include <CloudPointBase.h>
 
 using std::string;
 
@@ -39,8 +40,13 @@ namespace image2pcl {
 /**
  * Base initializer for Image2PclNode
  */
-Image2PclNode::Image2PclNode() {
+Image2PclNode::Image2PclNode(
+    ImageConverter & conv,
+    CloudPointBase<cv::Vec3b> & base)
+  : converter(conv), pointBase(base) {
+
   ros::NodeHandle nodeHandle;
+
   image_transport::ImageTransport imageTransport(nodeHandle);
 
   string image_topic = nodeHandle.resolveName("image");
@@ -52,8 +58,11 @@ Image2PclNode::Image2PclNode() {
       &Image2PclNode::imageCb,
       this);
 
-  ROS_DEBUG("Setting up publisher");
-  publisher = imageTransport.advertise("image_out", 1);
+  ROS_INFO("Setting up publisher");
+
+  imageStream = imageTransport.advertise("image_out", 1);
+  pointCloudStream = nodeHandle
+      .advertise<sensor_msgs::PointCloud2>("cloud_out", 1);
 }
 
 void Image2PclNode::imageCb(
@@ -65,16 +74,30 @@ void Image2PclNode::imageCb(
         image_msg,
         sensor_msgs::image_encodings::BGR8);
   }
-  catch (cv_bridge::Exception& ex) {
+  catch (cv_bridge::Exception & ex) {
     ROS_ERROR("[draw_frames] failed to convert image");
     return;
   }
 
   camModel.fromCameraInfo(info_msg);
+
+  ROS_INFO("Converting Image");
   bridge->image = converter.convertImage(bridge->image);
 
-  // Publish
-  publisher.publish(bridge->toImageMsg());
+  ROS_INFO("Publishing Converted Image");
+  imageStream.publish(bridge->toImageMsg());
+
+  ROS_INFO("Updating Point Cloud");
+  pointBase.updateCloud(
+      bridge->image, 
+      tf::Vector3(0,0,0),
+      tf::Quaternion(0,0,0,0),
+      ros::Time()
+  );
+
+  ROS_INFO("Publishing Point Cloud");
+  pointCloudStream.publish(pointBase.getCloud());
+  
 }
 
 }   // namespace image2pcl

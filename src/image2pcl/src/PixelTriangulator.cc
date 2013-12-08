@@ -21,43 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef SRC_IMAGE2PCL_INCLUDE_IMAGE2PCLNODE_H_
-#define SRC_IMAGE2PCL_INCLUDE_IMAGE2PCLNODE_H_
-#include <ros/ros.h>
-#include <image_transport/image_transport.h>
-#include <image_geometry/pinhole_camera_model.h>
 
-#include <ImageConverter.h>
-#include <CloudPointBase.h>
-#include <Macros.h>
+#include <tf/transform_datatypes.h>
+#include <sensor_msgs/PointCloud2.h>
+
+#include <PixelTriangulator.h>
+
+#include <vector>
 
 namespace image2pcl {
 
-/**
- * This node is the driver node. It configures the dependent nodes beneath it.
- */
-class Image2PclNode {
- public:
-  Image2PclNode(
-      ImageConverter & conv,
-      CloudPointBase<cv::Vec3b> & base);
-  void imageCb(
-      const sensor_msgs::ImageConstPtr& image_msg,
-      const sensor_msgs::CameraInfoConstPtr& info_msg);
+PixelTriangulator::PixelTriangulator(
+    double pWidthCm) 
+  : pixelWidthCm(pWidthCm),
+    cloud(new sensor_msgs::PointCloud2()) {
 
- private:
-  ImageConverter &                  converter;
-  CloudPointBase<cv::Vec3b> &       pointBase;
+}
 
-  image_transport::Publisher        imageStream;
-  ros::Publisher        pointCloudStream;
+sensor_msgs::PointCloud2ConstPtr PixelTriangulator::triangulate(
+    const std::vector<PixelCorrespondence> & correspondences,
+    const tf::Vector3 & lastPosition,
+    const tf::Vector3 & currPosition,
+    const tf::Quaternion & lastOrientation,
+    const tf::Quaternion & currOrientation) {
 
-  image_transport::CameraSubscriber  cameraSubscriber;
-  image_geometry::PinholeCameraModel camModel;
+  return sensor_msgs::PointCloud2ConstPtr(cloud);
+}
 
-  DISALLOW_COPY_AND_ASSIGN(Image2PclNode);
-};
+}  // namespace image2pcl
 
-}   // namespace image2pcl
 
-#endif  // SRC_IMAGE2PCL_INCLUDE_IMAGE2PCLNODE_H_

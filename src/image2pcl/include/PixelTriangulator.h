@@ -21,43 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef SRC_IMAGE2PCL_INCLUDE_IMAGE2PCLNODE_H_
-#define SRC_IMAGE2PCL_INCLUDE_IMAGE2PCLNODE_H_
-#include <ros/ros.h>
-#include <image_transport/image_transport.h>
-#include <image_geometry/pinhole_camera_model.h>
+#ifndef SRC_IMAGE2PCL_INCLUDE_PIXELTRIANGULATOR_H_
+#define SRC_IMAGE2PCL_INCLUDE_PIXELTRIANGULATOR_H_
 
-#include <ImageConverter.h>
-#include <CloudPointBase.h>
+#include <tf/transform_datatypes.h>
+#include <sensor_msgs/PointCloud2.h>
+
 #include <Macros.h>
+#include <PixelCorresponder.h>
+
+#include <vector>
 
 namespace image2pcl {
 
 /**
- * This node is the driver node. It configures the dependent nodes beneath it.
+ * This takes a set of correspondences, looks at the changes in position,
+ * and calculates the resulting point cloud from the given correspondences.
+ *
  */
-class Image2PclNode {
+class PixelTriangulator {
  public:
-  Image2PclNode(
-      ImageConverter & conv,
-      CloudPointBase<cv::Vec3b> & base);
-  void imageCb(
-      const sensor_msgs::ImageConstPtr& image_msg,
-      const sensor_msgs::CameraInfoConstPtr& info_msg);
+  PixelTriangulator(double pWidthCm);
+  sensor_msgs::PointCloud2ConstPtr triangulate(
+      const std::vector<PixelCorrespondence> & correspondences,
+      const tf::Vector3 & lastPosition,
+      const tf::Vector3 & currPosition,
+      const tf::Quaternion & lastOrientation,
+      const tf::Quaternion & currOrientation);
 
  private:
-  ImageConverter &                  converter;
-  CloudPointBase<cv::Vec3b> &       pointBase;
+  double pixelWidthCm;
+  sensor_msgs::PointCloud2Ptr cloud;
 
-  image_transport::Publisher        imageStream;
-  ros::Publisher        pointCloudStream;
-
-  image_transport::CameraSubscriber  cameraSubscriber;
-  image_geometry::PinholeCameraModel camModel;
-
-  DISALLOW_COPY_AND_ASSIGN(Image2PclNode);
+  DISALLOW_COPY_AND_ASSIGN(PixelTriangulator);
 };
 
 }   // namespace image2pcl
 
-#endif  // SRC_IMAGE2PCL_INCLUDE_IMAGE2PCLNODE_H_
+#endif  // SRC_IMAGE2PCL_INCLUDE_PIXELTRIANGULATOR_H_

@@ -24,13 +24,14 @@
 #ifndef SRC_IMAGE2PCL_INCLUDE_CLOUDPOINTBASE_H_
 #define SRC_IMAGE2PCL_INCLUDE_CLOUDPOINTBASE_H_
 
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 #include <tf/transform_datatypes.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 
 #include <Macros.h>
 #include <PixelCorresponder.h>
+#include <PixelTriangulator.h>
 
 #include <vector>
 
@@ -44,20 +45,28 @@ namespace image2pcl {
 template <class T>
 class CloudPointBase {
  public:
-  CloudPointBase(PixelCorresponder<T> & corr);
+  CloudPointBase(
+      PixelCorresponder<T> & corr,
+      PixelTriangulator    & trig);
 
   void updateCloud(
-      const cv::Mat & image,
-      const tf::Vector3 & position,
-      const tf::Quaternion & orientation,
-      const ros::Time & time);
+      const cv::Mat &         image,
+      const tf::Vector3 &     position,
+      const tf::Quaternion &  orientation,
+      const ros::Time &       time);
 
   const sensor_msgs::PointCloud2ConstPtr & getCloud();
 
  private:
-  sensor_msgs::PointCloud2Ptr cloud;
+  PixelCorresponder<T> &  corresponder;
+  PixelTriangulator &     triangulator;
+
   sensor_msgs::PointCloud2ConstPtr cloudPtr;
-  PixelCorresponder<T> & corresponder;
+
+  cv::Mat         lastImage;
+  tf::Vector3     lastPosition;
+  tf::Quaternion  lastOrientation;
+  ros::Time       lastTime;
 
   DISALLOW_COPY_AND_ASSIGN(CloudPointBase);
 };

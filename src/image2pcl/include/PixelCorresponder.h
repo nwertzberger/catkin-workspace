@@ -24,7 +24,7 @@
 #ifndef SRC_IMAGE2PCL_INCLUDE_PIXELCORRESPONDER_H_
 #define SRC_IMAGE2PCL_INCLUDE_PIXELCORRESPONDER_H_
 
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 #include <tf/transform_datatypes.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>

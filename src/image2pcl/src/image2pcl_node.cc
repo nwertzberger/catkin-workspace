@@ -22,17 +22,43 @@
  * THE SOFTWARE.
  */
 #include <ros/ros.h>
+#include <opencv/cv.h>
 #include <Image2PclNode.h>
+#include <PixelCorresponder.h>
+#include <PixelTriangulator.h>
+#include <CloudPointBase.h>
 
-using image2pcl::Image2PclNode;
+using namespace image2pcl;
 
+/**
+ * This function is responsible for setting up the dependencies for the
+ * different classes and then starting it up.
+ */
 int main(int argc, char ** argv) {
     ros::init(argc, argv, "draw_frames");
 
     ROS_DEBUG("JUST STARTED");
     ROS_DEBUG("STARTING UP FRAME DRAWER");
 
-    Image2PclNode drawer;
+    // Set up the class dependencies
+    // A Corresponder simple finds correspondences between two cv::Mat's
+    PixelCorresponder<cv::Vec3b> corresponder(cv::Vec3b(0,0,0));
+
+    // A Triangulator converts these correspondences into a point cloud
+    PixelTriangulator triangulator(1);
+
+    // A CloudPointBase manages stateful information.
+    CloudPointBase<cv::Vec3b> pointBase(
+        corresponder,
+        triangulator);
+
+    // An image converter is responsible for making the image ready to
+    // process.
+    ImageConverter    converter;
+
+    // An Image2PclNode is responsible for hiding all the ROS configuration
+    // needed to start up a nodehandle and publish the different messages.
+    Image2PclNode drawer(converter, pointBase);
 
     ROS_DEBUG("SPINNING");
     ros::spin();
