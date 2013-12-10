@@ -24,7 +24,7 @@
 #ifndef SRC_IMAGE2PCL_INCLUDE_IMAGECONVERTER_H_
 #define SRC_IMAGE2PCL_INCLUDE_IMAGECONVERTER_H_
 
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 #include <Macros.h>
 
 namespace image2pcl {

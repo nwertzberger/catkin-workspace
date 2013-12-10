@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <ros/console.h>
 #include <opencv/cv.h>
 #include <opencv2/photo/photo.hpp>
 #include <opencv2/features2d/features2d.hpp>
@@ -31,6 +32,7 @@
 namespace image2pcl {
 
 ImageConverter::ImageConverter() {
+  ROS_INFO("Created an ImageConverter");
 }
 
 const cv::Mat & ImageConverter::convertImage(cv::Mat & srcImage) {
@@ -38,6 +40,7 @@ const cv::Mat & ImageConverter::convertImage(cv::Mat & srcImage) {
     cv::cvtColor(srcImage, srcImage, CV_BGR2GRAY);
     cv::blur(srcImage, blurred, cv::Size(7, 7));
     cv::Canny(blurred, srcImage, 100, 200, 5);
+    cv::cvtColor(srcImage, srcImage, CV_GRAY2BGR);
     return srcImage;
 }
 

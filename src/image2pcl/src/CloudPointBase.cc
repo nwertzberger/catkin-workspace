@@ -22,10 +22,12 @@
  * THE SOFTWARE.
  */
 
+#include <ros/console.h>
 #include <opencv2/core/core.hpp>
 #include <tf/transform_datatypes.h>
-#include <ros/ros.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <ros/time.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
 #include <CloudPointBase.h>
 
@@ -36,9 +38,8 @@ CloudPointBase<T>::CloudPointBase(
     PixelCorresponder<T> & corr,
     PixelTriangulator & trig)
   : corresponder(corr),
-    triangulator(trig)
-  {
-    cloudPtr;
+    triangulator(trig) {
+      ROS_INFO("Instantiated a CloudPointBase");
 }
 
 
@@ -48,14 +49,18 @@ void CloudPointBase<T>::updateCloud(
     const tf::Vector3 & position,
     const tf::Quaternion & orientation,
     const ros::Time & time) {
+  ROS_INFO("validating image size");
   // If there was nothing in the last image, there is nothing to do.
-  if (cv::countNonZero(lastImage) > 0) {
+  if (lastImage.rows == 0 && lastImage.cols == 0) {
+    ROS_INFO("Corresponding pixels");
     const std::vector<PixelCorrespondence> & corr = corresponder.correspondPixels(
         lastImage,
         image,
         3, 3);
 
-    cloudPtr = triangulator.triangulate(
+    ROS_INFO("Triangulating correspondences");
+    triangulator.triangulate(
+        cloud,
         corr,
         lastPosition,
         position,
@@ -73,8 +78,13 @@ void CloudPointBase<T>::updateCloud(
  * get current "visible" cloud.
  */
 template<class T>
-const sensor_msgs::PointCloud2ConstPtr & CloudPointBase<T>::getCloud() {
-  return cloudPtr;
+const pcl::PointCloud<pcl::PointXYZ> & CloudPointBase<T>::getCloud() {
+  return cloud;
+}
+
+template<class T>
+bool CloudPointBase<T>::hasCloud() {
+  return cloud.empty();
 }
 
 template class CloudPointBase<cv::Vec3b>;

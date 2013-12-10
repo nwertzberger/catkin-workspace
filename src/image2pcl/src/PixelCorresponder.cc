@@ -22,7 +22,8 @@
  * THE SOFTWARE.
  */
 
-#include <opencv/cv.h>
+#include <ros/console.h>
+#include <opencv2/core/core.hpp>
 #include <math.h>
 
 #include <boost/foreach.hpp>
@@ -42,6 +43,7 @@ namespace image2pcl {
 template <class T>
 PixelCorresponder<T>::PixelCorresponder(T skipVal)
   : skipValue(skipVal) {
+    ROS_INFO("Created a PixelCorresponder");
 }
 
 template <class T>

@@ -21,8 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <ros/ros.h>
-#include <opencv/cv.h>
+#include <ros/init.h>
+#include <opencv2/core/core.hpp>
 #include <Image2PclNode.h>
 #include <PixelCorresponder.h>
 #include <PixelTriangulator.h>

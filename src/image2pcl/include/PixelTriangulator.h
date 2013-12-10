@@ -25,7 +25,8 @@
 #define SRC_IMAGE2PCL_INCLUDE_PIXELTRIANGULATOR_H_
 
 #include <tf/transform_datatypes.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
 #include <Macros.h>
 #include <PixelCorresponder.h>
@@ -42,7 +43,8 @@ namespace image2pcl {
 class PixelTriangulator {
  public:
   PixelTriangulator(double pWidthCm);
-  sensor_msgs::PointCloud2ConstPtr triangulate(
+  const pcl::PointCloud<pcl::PointXYZ> & triangulate(
+      pcl::PointCloud<pcl::PointXYZ> & cloud,
       const std::vector<PixelCorrespondence> & correspondences,
       const tf::Vector3 & lastPosition,
       const tf::Vector3 & currPosition,
@@ -51,7 +53,6 @@ class PixelTriangulator {
 
  private:
   double pixelWidthCm;
-  sensor_msgs::PointCloud2Ptr cloud;
 
   DISALLOW_COPY_AND_ASSIGN(PixelTriangulator);
 };

@@ -26,8 +26,9 @@
 
 #include <opencv2/core/core.hpp>
 #include <tf/transform_datatypes.h>
-#include <ros/ros.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <ros/time.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
 #include <Macros.h>
 #include <PixelCorresponder.h>
@@ -55,13 +56,14 @@ class CloudPointBase {
       const tf::Quaternion &  orientation,
       const ros::Time &       time);
 
-  const sensor_msgs::PointCloud2ConstPtr & getCloud();
+  const pcl::PointCloud<pcl::PointXYZ> & getCloud();
+  bool hasCloud();
 
  private:
   PixelCorresponder<T> &  corresponder;
   PixelTriangulator &     triangulator;
 
-  sensor_msgs::PointCloud2ConstPtr cloudPtr;
+  pcl::PointCloud<pcl::PointXYZ> cloud;
 
   cv::Mat         lastImage;
   tf::Vector3     lastPosition;

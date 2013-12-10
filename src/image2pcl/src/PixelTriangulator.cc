@@ -22,8 +22,10 @@
  * THE SOFTWARE.
  */
 
+#include <ros/console.h>
 #include <tf/transform_datatypes.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
 #include <PixelTriangulator.h>
 
@@ -33,19 +35,20 @@ namespace image2pcl {
 
 PixelTriangulator::PixelTriangulator(
     double pWidthCm) 
-  : pixelWidthCm(pWidthCm),
-    cloud(new sensor_msgs::PointCloud2()) {
+  : pixelWidthCm(pWidthCm) {
+    ROS_INFO("Created a PixelTriangulator");
 
 }
 
-sensor_msgs::PointCloud2ConstPtr PixelTriangulator::triangulate(
+const pcl::PointCloud<pcl::PointXYZ> & PixelTriangulator::triangulate(
+    pcl::PointCloud<pcl::PointXYZ> & cloud,
     const std::vector<PixelCorrespondence> & correspondences,
     const tf::Vector3 & lastPosition,
     const tf::Vector3 & currPosition,
     const tf::Quaternion & lastOrientation,
     const tf::Quaternion & currOrientation) {
 
-  return sensor_msgs::PointCloud2ConstPtr(cloud);
+  return cloud;
 }
 
 }  // namespace image2pcl

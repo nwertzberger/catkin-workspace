@@ -23,9 +23,11 @@
  */
 #ifndef SRC_IMAGE2PCL_INCLUDE_IMAGE2PCLNODE_H_
 #define SRC_IMAGE2PCL_INCLUDE_IMAGE2PCLNODE_H_
-#include <ros/ros.h>
+#include <ros/publisher.h>
 #include <image_transport/image_transport.h>
 #include <image_geometry/pinhole_camera_model.h>
+
+#include <sensor_msgs/PointCloud2.h>
 
 #include <ImageConverter.h>
 #include <CloudPointBase.h>
@@ -50,7 +52,9 @@ class Image2PclNode {
   CloudPointBase<cv::Vec3b> &       pointBase;
 
   image_transport::Publisher        imageStream;
-  ros::Publisher        pointCloudStream;
+  ros::Publisher                    pointCloudStream;
+
+  sensor_msgs::PointCloud2          cloudMsg;
 
   image_transport::CameraSubscriber  cameraSubscriber;
   image_geometry::PinholeCameraModel camModel;

@@ -21,14 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <ros/ros.h>
+#include <boost/foreach.hpp>
+
+#include <ros/node_handle.h>
+#include <ros/time.h>
 #include <ros/console.h>
-#include <image_transport/image_transport.h>
+
+#include <tf/transform_listener.h>
+
 #include <cv_bridge/cv_bridge.h>
 #include <image_geometry/pinhole_camera_model.h>
-#include <tf/transform_listener.h>
-#include <boost/foreach.hpp>
+#include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.h>
+
+#include <pcl/conversions.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <sensor_msgs/PointCloud2.h>
 
 #include <Image2PclNode.h>
 #include <CloudPointBase.h>
@@ -88,6 +96,7 @@ void Image2PclNode::imageCb(
   imageStream.publish(bridge->toImageMsg());
 
   ROS_INFO("Updating Point Cloud");
+ 
   pointBase.updateCloud(
       bridge->image, 
       tf::Vector3(0,0,0),
@@ -95,8 +104,13 @@ void Image2PclNode::imageCb(
       ros::Time()
   );
 
-  ROS_INFO("Publishing Point Cloud");
-  pointCloudStream.publish(pointBase.getCloud());
+
+  if(pointBase.hasCloud()) {
+    ROS_INFO("Publishing Point Cloud");
+    pcl::toROSMsg(pointBase.getCloud(), cloudMsg);
+    pointCloudStream.publish(cloudMsg);
+  }
+  
   
 }
 
